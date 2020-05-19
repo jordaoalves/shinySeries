@@ -1,0 +1,42 @@
+ @import url('//fonts.googleapis.com/css?family=Lobster|Cabin:400,700');
+
+#btEnviar{
+  font-size:20pt;
+  width: 100%;
+  height: 70px;
+}
+.boxes{
+  height: 140px;
+  text-align: center;
+}
+.boxes:hover{
+  transition: .2s;
+  box-shadow: 5px 10px #888888;
+}
+.dica{
+  float: right;
+  font-size: 12pt;
+}
+.dica:hover{
+  transition: .5s;
+  color:red;
+}
+
+.imgRegistro{
+  width: 100%;
+}
+h1{
+  text-align: center;
+}
+.paragrafo{
+  text-align: justify;
+}
+.sadeprevDiv{
+  height: 100%;
+}
+
+.banner{
+  margin-left: 20%;
+  margin-bottom: 7px;
+}
+             
