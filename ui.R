@@ -20,7 +20,8 @@ dashboardPage(
       menuItem("Validação da série", tabName = "aba10", icon = icon("chart-line")),
       menuItem("Autocorrelações dos resíduos", tabName = "aba11", icon = icon("chart-line")),
       menuItem("Previsão ARIMA", tabName = "aba12", icon = icon("chart-line")),
-      menuItem("Sobre", tabName = "aba13", icon = icon("info"))
+      menuItem("Melhor modelo", tabName = "aba13", icon = icon("trophy")),
+      menuItem("Sobre", tabName = "aba14", icon = icon("info"))
       
       
     )
@@ -271,9 +272,9 @@ dashboardPage(
                                             "Zt^1/4 (Raiz raiz quártica da série)",
                                             "ln(Zt) (Logaritmo natural da série)"
                                 )),
-                    numericInput("AtermosAR", label = "Termos AR: ", value = 1, min = 0, max = 3),
+                    numericInput("AtermosAR", label = "Termos AR: ", value = 1, min = 0, max = 4),
                     numericInput("AtermosI", label = "Termos I: ", value = 1, min = 0, max = 2),
-                    numericInput("AtermosMA", label = "Termos MA: ", value = 1, min = 0, max = 3)
+                    numericInput("AtermosMA", label = "Termos MA: ", value = 1, min = 0, max = 4)
                 ),
                 box(title = "Número de termos do modelo ARIMA sobrefixado",
                     selectInput(inputId = "tipoTransfoABA10.2",
@@ -283,9 +284,9 @@ dashboardPage(
                                             "Zt^1/4 (Raiz raiz quártica da série)",
                                             "ln(Zt) (Logaritmo natural da série)"
                                 )),
-                    numericInput("BtermosAR", label = "Termos AR: ", value = 2, min = 0, max = 3),
+                    numericInput("BtermosAR", label = "Termos AR: ", value = 2, min = 0, max = 4),
                     numericInput("BtermosI", label = "Termos I: ", value = 1, min = 0, max = 2),
-                    numericInput("BtermosMA", label = "Termos MA: ", value = 1, min = 0, max = 3)
+                    numericInput("BtermosMA", label = "Termos MA: ", value = 1, min = 0, max = 4)
                 )
               ),
               fluidRow(
@@ -308,9 +309,9 @@ dashboardPage(
                                             "Zt^1/4 (Raiz raiz quártica da série)",
                                             "ln(Zt) (Logaritmo natural da série)"
                                 )),
-                    numericInput("CtermosAR", label = "Termos AR: ", value = 2, min = 0, max = 3),
+                    numericInput("CtermosAR", label = "Termos AR: ", value = 2, min = 0, max = 4),
                     numericInput("CtermosI", label = "Termos I: ", value = 1, min = 0, max = 2),
-                    numericInput("CtermosMA", label = "Termos AR: ", value = 1, min = 0, max = 3)
+                    numericInput("CtermosMA", label = "Termos AR: ", value = 1, min = 0, max = 4)
                 )
               ),
               fluidRow(
@@ -343,11 +344,11 @@ dashboardPage(
                                             "Zt^1/4 (Raiz raiz quártica da série)",
                                             "ln(Zt) (Logaritmo natural da série)"
                                 )),
-                    numericInput("DtermosAR", label = "Termos AR: ", value = 0, min = 0, max = 3),
+                    numericInput("DtermosAR", label = "Termos AR: ", value = 0, min = 0, max = 4),
                     numericInput("DtermosI", label = "Termos I: ", value = 0, min = 0, max = 2),
-                    numericInput("DtermosMA", label = "Termos MA: ", value = 0, min = 0, max = 3),
+                    numericInput("DtermosMA", label = "Termos MA: ", value = 0, min = 0, max = 4),
                     br(),
-                    numericInput("Kpassos", label = "K passos: ", value = 1, min = 1, max = 30)
+                    numericInput("Kpassos", label = "K passos: ", value = 1, min = 1, max = 999)
                 ),
                 box(id="corres1", class="boxes",title = strong("Teste Box-Pierce:"),
                     mainPanel(tableOutput("boxpierce"))
@@ -363,7 +364,6 @@ dashboardPage(
               
       ), ## end pag11
       
-      
       tabItem(tabName = "aba12", 
               fluidRow(
                 box(title = strong("Gráfico de previsão da série"),
@@ -378,22 +378,60 @@ dashboardPage(
                                             "Zt^1/4 (Raiz raiz quártica da série)",
                                             "ln(Zt) (Logaritmo natural da série)"
                                 )),
-                    numericInput("EtermosAR", label = "Termos AR: ", value = 0, min = 0, max = 3),
+                    numericInput("EtermosAR", label = "Termos AR: ", value = 0, min = 0, max = 4),
                     numericInput("EtermosI", label = "Termos I: ", value = 0, min = 0, max = 2),
-                    numericInput("EtermosMA", label = "Termos MA: ", value = 0, min = 0, max = 3),
+                    numericInput("EtermosMA", label = "Termos MA: ", value = 0, min = 0, max = 4),
+                    #checkboxInput("Drift", "Drift", FALSE),
                     br(),
-                    numericInput("KPassosPrev", label = "K passos: ", value = 1, min = 1, max = 30),
+                    numericInput("KPassosPrev", label = "K passos: ", value = 1, min = 1, max = 999),
                     width = 3
                 )
               ),
-              tableOutput("dadosPrev")
+              fluidRow(
+                box(title = NULL,
+                    # plotOutput("plot16"),width = 9
+                    tableOutput("dadosPrev"),width = 4
+                ),
+                box(title = NULL,verbatimTextOutput("summaryModelPrev"),width = 8
+                )
+              )
               
-              
-              
+            
+             
               
       ),## end pag12
       
       tabItem(tabName = "aba13", 
+              fluidRow(
+                box(title = strong("Parâmetros:"),
+                    selectInput(inputId = "tipoTransfoBest",
+                                "Caso queira utilizar uma pré-diferenciação na série modifique esta opção:",
+                                choices = c("Zt (Série padrão)", 
+                                            "Zt^1/2 (Raiz quadrada da série)",
+                                            "Zt^1/4 (Raiz raiz quártica da série)",
+                                            "ln(Zt) (Logaritmo natural da série)"
+                                )),
+                      br(),
+                      numericInput(inputId = "KPassosPrevBest",
+                                   label = "K passos: ", value = 1, min = 1, max = 999),width = 4
+                ),
+                box(id="autoArimaBox", class="boxes",title = strong("Melhor modelo baseado no BIC:"),
+                    verbatimTextOutput("summaryAutoArimaBest"),width = 8
+                    
+                )),
+              fluidRow(
+                box(title = strong("Gráfico de previsão da série"),
+                        # plotOutput("plot16"),width = 9
+                        plotlyOutput("plot17"),width = 8
+                ),
+                box(id="autoArimaBox", class="boxes",title = NULL,
+                    tableOutput("dadosPrevBest"),width = 4)
+                    
+                )
+              
+      ), ## end pag13
+      
+      tabItem(tabName = "aba14", 
               fluidRow(
                        fluidPage(
                            column(7,
@@ -422,7 +460,7 @@ dashboardPage(
               
               
               
-      )## end pag13
+      )## end pag14
       
     ),busyIndicator()   
   )

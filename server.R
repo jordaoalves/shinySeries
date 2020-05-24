@@ -970,6 +970,7 @@ function(input, output, session) {
       
    }) ## media da ljung box
    
+   
    output$plot16 <- renderPlotly({
       
       inFile <- input$file1
@@ -1066,6 +1067,225 @@ function(input, output, session) {
    }) ## dados da previsao
    
    
+   output$summaryModelPrev <- renderPrint({
+      
+      inFile <- input$file1
+      if (is.null(inFile))
+         return(NULL)
+      dados <- get(paste0(input$TYPEsep))(inFile$datapath, header = input$header)  
+      dados.ts <- ts(dados[2], start = c(input$anoInicial, input$periodoInicial), freq = input$frequencia)
+      
+      summaryAutoArima <- if (input$tipoTransfoARIMA == "Zt (Série padrão)") {
+         
+         
+        print(
+        
+        stats::arima(x = dados.ts , order = c(input$EtermosAR,input$EtermosI,input$EtermosMA))
+        
+        )
+         
+        print(
+        
+        accuracy(forecast(arima(dados.ts, order = c(input$EtermosAR,input$EtermosI,input$EtermosMA)),h=input$KPassosPrev))
+        
+         )
+        
+         
+      } else if (input$tipoTransfoARIMA == "Zt^1/2 (Raiz quadrada da série)") {
+         
+        print(
+            
+            stats::arima(x = (dados.ts^(1/2)) , order = c(input$EtermosAR,input$EtermosI,input$EtermosMA))
+            
+         )
+         
+         print(
+            
+            accuracy(forecast(arima((dados.ts^(1/2)), order = c(input$EtermosAR,input$EtermosI,input$EtermosMA)),h=input$KPassosPrev))
+            
+         )
+         
+      } else if (input$tipoTransfoARIMA == "Zt^1/4 (Raiz raiz quártica da série)") {
+         
+         print(
+            
+            stats::arima(x = (dados.ts^(1/4)) , order = c(input$EtermosAR,input$EtermosI,input$EtermosMA))
+            
+         )
+         
+         print(
+            
+            accuracy(forecast(arima((dados.ts^(1/4)), order = c(input$EtermosAR,input$EtermosI,input$EtermosMA)),h=input$KPassosPrev))
+            
+         )
+         
+      } else {
+         
+         print(
+            
+            stats::arima(x = log(dados.ts) , order = c(input$EtermosAR,input$EtermosI,input$EtermosMA))
+            
+         )
+         
+         print(
+            
+            accuracy(forecast(arima(log(dados.ts), order = c(input$EtermosAR,input$EtermosI,input$EtermosMA)),h=input$KPassosPrev))
+            
+         )
+      }
+      
+   }) ## summaryArima
+   
+   
+   #######################################################################
+   
+   output$summaryAutoArimaBest <- renderPrint({
+      
+      inFile <- input$file1
+      if (is.null(inFile))
+         return(NULL)
+      dados <- get(paste0(input$TYPEsep))(inFile$datapath, header = input$header)  
+      dados.ts <- ts(dados[2], start = c(input$anoInicial, input$periodoInicial), freq = input$frequencia)
+      
+      summaryAutoArimaBest <- if (input$tipoTransfoBest == "Zt (Série padrão)") {
+         
+         model1= forecast::auto.arima(dados.ts)
+         
+         print(summary(model1))
+         
+      } else if (input$tipoTransfoBest == "Zt^1/2 (Raiz quadrada da série)") {
+         
+         model1= forecast::auto.arima((dados.ts^(1/2)))
+         
+         print(summary(model1))
+         
+      } else if (input$tipoTransfoBest == "Zt^1/4 (Raiz raiz quártica da série)") {
+         
+         model1= forecast::auto.arima((dados.ts^(1/4)))
+         
+         print(summary(model1))
+         
+      } else {
+         
+         model1= forecast::auto.arima(log(dados.ts))
+         
+         print(summary(model1))
+      }
+      
+   }) ## summaryAutoArima
+   
+   
+   output$dadosPrevBest <- renderTable({
+      
+      inFile <- input$file1
+      if (is.null(inFile))
+         return(NULL)
+      dados <- get(paste0(input$TYPEsep))(inFile$datapath, header = input$header)  
+      dados.ts <- ts(dados[2], start = c(input$anoInicial, input$periodoInicial), freq = input$frequencia)
+      
+      plote16 <- if (input$tipoTransfoBest == "Zt (Série padrão)") {
+         
+         model1= forecast::auto.arima(dados.ts)
+         
+         forecast(model1,h=input$KPassosPrevBest)
+         
+      } else if (input$tipoTransfoBest == "Zt^1/2 (Raiz quadrada da série)") {
+         
+        model1= forecast::auto.arima((dados.ts^(1/2)))
+         
+         forecast(model1,h=input$KPassosPrevBest)
+         
+         
+      } else if (input$tipoTransfoBest == "Zt^1/4 (Raiz raiz quártica da série)") {
+         
+         model1= forecast::auto.arima((dados.ts^(1/4)))
+         
+         forecast(model1,h=input$KPassosPrevBest)
+         
+         
+      } else {
+         
+         model1= forecast::auto.arima(log(dados.ts))
+         
+         forecast(model1,h=input$KPassosPrevBest)
+         
+         
+      }
+      
+      
+   }) ## dados da previsaoBest
+   
+   
+   output$plot17 <- renderPlotly({
+      
+      inFile <- input$file1
+      if (is.null(inFile))
+         return(NULL)
+      dados <- get(paste0(input$TYPEsep))(inFile$datapath, header = input$header)  
+      dados.ts <- ts(dados[2], start = c(input$anoInicial, input$periodoInicial), freq = input$frequencia)
+      
+      plote17 <- if (input$tipoTransfoBest == "Zt (Série padrão)") {
+         
+         model1= forecast::auto.arima(dados.ts)
+         
+         prev <- forecast(model1,h=input$KPassosPrevBest)
+         
+         p <- autoplotly(prev)
+         
+         # You can apply additional ggplot2 elements to the generated interactive plot
+         p + ggplot2::ggtitle(paste(colnames(dados.ts),paste(model1),sep = " ")) +
+            
+            xlab("Tempo") + ylab(colnames(dados.ts)) 
+         
+         
+         
+      } else if (input$tipoTransfoBest == "Zt^1/2 (Raiz quadrada da série)") {
+         
+         model1= forecast::auto.arima((dados.ts^(1/2)))
+         
+         prev <- forecast(model1,h=input$KPassosPrevBest)
+         
+         p <- autoplotly(prev)
+         
+         # You can apply additional ggplot2 elements to the generated interactive plot
+         p + ggplot2::ggtitle(paste(colnames(dados.ts),paste(model1),sep = " ")) +
+            
+            xlab("Tempo") + ylab(colnames(dados.ts)) 
+         
+         
+         
+      } else if (input$tipoTransfoBest == "Zt^1/4 (Raiz raiz quártica da série)") {
+         
+         model1= forecast::auto.arima((dados.ts^(1/4)))
+         
+         prev <- forecast(model1,h=input$KPassosPrevBest)
+         
+         p <- autoplotly(prev)
+         
+         # You can apply additional ggplot2 elements to the generated interactive plot
+         p + ggplot2::ggtitle(paste(colnames(dados.ts),paste(model1),sep = " ")) +
+            
+            xlab("Tempo") + ylab(colnames(dados.ts)) 
+         
+         
+      } else {
+         
+         model1= forecast::auto.arima(log(dados.ts))
+         
+         prev <- forecast(model1,h=input$KPassosPrevBest)
+         
+         p <- autoplotly(prev)
+         
+         # You can apply additional ggplot2 elements to the generated interactive plot
+         p + ggplot2::ggtitle(paste(colnames(dados.ts),paste(model1),sep = " ")) +
+            
+            xlab("Tempo") + ylab(colnames(dados.ts)) 
+         
+         
+      }
+      
+      
+   }) ## grafico da Previsão
    
    
 }
